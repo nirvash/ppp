@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\pyaway\mainwindow.ui'
+# Form implementation generated from reading ui file 'D:\ppp\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
 #
@@ -28,14 +28,34 @@ class Ui_MainWindow(object):
         self.graphicsView.setAcceptDrops(False)
         self.graphicsView.setObjectName("graphicsView")
         self.verticalLayout.addWidget(self.graphicsView)
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(-1, -1, -1, 0)
+        self.horizontalLayout.setSpacing(6)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem = QtWidgets.QSpacerItem(60, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.pushButtonLeft = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
-        self.pushButton.setSizePolicy(sizePolicy)
-        self.pushButton.setObjectName("pushButton")
-        self.verticalLayout.addWidget(self.pushButton)
+        sizePolicy.setHeightForWidth(self.pushButtonLeft.sizePolicy().hasHeightForWidth())
+        self.pushButtonLeft.setSizePolicy(sizePolicy)
+        self.pushButtonLeft.setObjectName("pushButtonLeft")
+        self.horizontalLayout.addWidget(self.pushButtonLeft)
+        self.pushButtonRight = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButtonRight.setObjectName("pushButtonRight")
+        self.horizontalLayout.addWidget(self.pushButtonRight)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
+        self.pushButtonAction = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButtonAction.sizePolicy().hasHeightForWidth())
+        self.pushButtonAction.setSizePolicy(sizePolicy)
+        self.pushButtonAction.setObjectName("pushButtonAction")
+        self.horizontalLayout.addWidget(self.pushButtonAction)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 867, 24))
@@ -50,6 +70,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "PushButton"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "ppp"))
+        self.pushButtonLeft.setText(_translate("MainWindow", "<"))
+        self.pushButtonRight.setText(_translate("MainWindow", ">"))
+        self.pushButtonAction.setText(_translate("MainWindow", "Action"))
 

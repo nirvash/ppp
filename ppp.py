@@ -17,7 +17,11 @@ class MainWidget(QMainWindow):
         self.setAcceptDrops(True)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.pushButton.clicked.connect(self.exec_canny)
+        self.ui.pushButtonAction.clicked.connect(self.exec_canny)
+        self.ui.pushButtonLeft.clicked.connect(self.move_prev)
+        self.ui.pushButtonRight.clicked.connect(self.move_next)
+        self.files = []
+        self.index = -1
 
     def dragEnterEvent(self, event):
         mimedata = event.mimeData()
@@ -37,11 +41,16 @@ class MainWidget(QMainWindow):
         mimedata = event.mimeData()
         if mimedata.hasUrls():
             event.accept()
+            self.index = -1
+            self.files = []
             for url in mimedata.urls():
                 path = url.toLocalFile()
                 print path
-                self.open_file(path)
-                break
+                self.files.append(path)
+
+            if len(self.files) > 0:
+                self.index = 0
+                self.open_file(self.files[0])
 
         else:
             event.ignore()
@@ -76,6 +85,21 @@ class MainWidget(QMainWindow):
             image = QImage(cv_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
             pic_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
             self.scene.addItem(pic_item)
+
+
+    def move_next(self):
+        if (self.index == -1):
+            return
+
+        if (self.index < len(self.files) - 1):
+            self.index += 1
+            self.open_file(self.files[self.index])
+
+    def move_prev(self):
+        if (self.index > 0):
+            self.index -= 1
+            self.open_file(self.files[self.index])
+
 
 def exception_handler(t, value, tb):
     traceback.print_exception(t, value, tb)
