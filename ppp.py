@@ -6,7 +6,7 @@ import pdb
 import traceback
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore
+from PyQt5 import QtCore, Qt
 from mainwindow_ui import Ui_MainWindow
 
 from opencv_test import opencv_test
@@ -67,18 +67,32 @@ class MainWidget(QMainWindow):
 
     def rubberBandSelected(self, rect):
         print "rubber: {0}".format(rect)
+        paint = QPainter(self.pixmap)
+        paint.setPen(QColor(255, 0, 0))
+
+        # View座標系からScene(= pixmap)の座標系に変換
+        p1 = self.ui.graphicsView.mapToScene(rect.topLeft())
+        p2 = self.ui.graphicsView.mapToScene(rect.bottomRight())
+        rect.setTopLeft(p1.toPoint())
+        rect.setBottomRight(p2.toPoint())
+        paint.drawRect(rect)
+        self.update_image()
+
 
     def open_file(self, path):
         if path:
             self.path = path
             self.ui.lineEdit.setText(path)
-            pixmap = QPixmap(path)
-            self.item = QGraphicsPixmapItem(pixmap)
-            self.scene = QGraphicsScene()
-            self.scene.setSceneRect(0, 0, pixmap.width(), pixmap.height())
-            self.scene.addItem(self.item)
-            self.ui.graphicsView.setScene(self.scene)
-            self.ui.graphicsView.fitInView(self.item)
+            self.pixmap = QPixmap(path)
+            self.update_image()
+
+    def update_image(self):
+        self.item = QGraphicsPixmapItem(self.pixmap)
+        self.scene = QGraphicsScene()
+        self.scene.setSceneRect(0, 0, self.pixmap.width(), self.pixmap.height())
+        self.scene.addItem(self.item)
+        self.ui.graphicsView.setScene(self.scene)
+        self.ui.graphicsView.fitInView(self.item, QtCore.Qt.KeepAspectRatio)
 
     def exec_canny(self):
         if hasattr(self, 'path'):

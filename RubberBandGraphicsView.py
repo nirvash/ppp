@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint, QRect
 from PyQt5.QtWidgets import QGraphicsView
