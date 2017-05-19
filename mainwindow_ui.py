@@ -24,8 +24,10 @@ class Ui_MainWindow(object):
         self.lineEdit.setSizePolicy(sizePolicy)
         self.lineEdit.setObjectName("lineEdit")
         self.verticalLayout.addWidget(self.lineEdit)
-        self.graphicsView = QtWidgets.QGraphicsView(self.centralwidget)
+        self.graphicsView = RubberBandGraphicsView(self.centralwidget)
+        self.graphicsView.setMouseTracking(True)
         self.graphicsView.setAcceptDrops(False)
+        self.graphicsView.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
         self.graphicsView.setObjectName("graphicsView")
         self.verticalLayout.addWidget(self.graphicsView)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -75,3 +77,4 @@ class Ui_MainWindow(object):
         self.pushButtonRight.setText(_translate("MainWindow", ">"))
         self.pushButtonAction.setText(_translate("MainWindow", "Action"))
 
+from RubberBandGraphicsView import RubberBandGraphicsView

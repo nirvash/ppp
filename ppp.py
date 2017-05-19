@@ -11,6 +11,7 @@ from mainwindow_ui import Ui_MainWindow
 
 from opencv_test import opencv_test
 
+
 class MainWidget(QMainWindow):
     def __init__(self, parent = None):
         super(MainWidget, self).__init__(parent)
@@ -20,6 +21,7 @@ class MainWidget(QMainWindow):
         self.ui.pushButtonAction.clicked.connect(self.exec_canny)
         self.ui.pushButtonLeft.clicked.connect(self.move_prev)
         self.ui.pushButtonRight.clicked.connect(self.move_next)
+        self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
         self.files = []
         self.index = -1
 
@@ -63,6 +65,9 @@ class MainWidget(QMainWindow):
     def cleanup(self):
         self.ui.graphicsView.setScene(None) # これやらないと終了時に異常終了する
 
+    def rubberBandSelected(self, rect):
+        print "rubber: {0}".format(rect)
+
     def open_file(self, path):
         if path:
             self.path = path
@@ -86,17 +91,16 @@ class MainWidget(QMainWindow):
             pic_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
             self.scene.addItem(pic_item)
 
-
     def move_next(self):
-        if (self.index == -1):
+        if self.index == -1:
             return
 
-        if (self.index < len(self.files) - 1):
+        if self.index < len(self.files) - 1:
             self.index += 1
             self.open_file(self.files[self.index])
 
     def move_prev(self):
-        if (self.index > 0):
+        if self.index > 0:
             self.index -= 1
             self.open_file(self.files[self.index])
 

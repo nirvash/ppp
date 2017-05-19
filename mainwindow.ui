@@ -26,9 +26,15 @@
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="graphicsView">
+     <widget class="RubberBandGraphicsView" name="graphicsView">
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
       <property name="acceptDrops">
        <bool>false</bool>
+      </property>
+      <property name="dragMode">
+       <enum>QGraphicsView::RubberBandDrag</enum>
       </property>
      </widget>
     </item>
@@ -115,6 +121,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>RubberBandGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>RubberBandGraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
