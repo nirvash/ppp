@@ -67,6 +67,10 @@ class MainWidget(QMainWindow):
 
     def rubberBandSelected(self, rect):
         print "rubber: {0}".format(rect)
+
+        if not hasattr(self, 'pixmap'):
+            return
+
         paint = QPainter(self.pixmap)
         paint.setPen(QColor(255, 0, 0))
 
