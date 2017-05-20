@@ -9,6 +9,8 @@ from PyQt5.QtCore import QRectF
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, Qt
+
+from FaceDetector import FaceDetector
 from mainwindow_ui import Ui_MainWindow
 
 from opencv_test import opencv_test
@@ -28,6 +30,7 @@ class MainWidget(QMainWindow):
         self.files = []
         self.index = -1
         self.scene = None
+        self.xml = None
 
     def resizeEvent(self, event):
         super(MainWidget, self).resizeEvent(event)
@@ -59,6 +62,7 @@ class MainWidget(QMainWindow):
                 print path
                 if path.endswith(".xml"):
                     self.ui.cascadeFilepath.setText(path)
+                    self.xml = path
                 else:
                     self.files.append(path)
 
@@ -105,8 +109,18 @@ class MainWidget(QMainWindow):
         if path:
             self.path = path
             self.ui.imageFilepath.setText(path)
-            self.pixmap = QPixmap(path)
+            self.load_image()
             self.update_image()
+
+    def load_image(self):
+        if hasattr(self, 'path'):
+            detector = FaceDetector()
+            img = detector.open(self.path)
+            img = detector.detect(img, self.xml)
+            height, width, dim = img.shape
+            bytesPerLine = dim * width
+            image = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            self.pixmap = QPixmap.fromImage(image)
 
     def update_image(self):
         self.item = QGraphicsPixmapItem(self.pixmap)
