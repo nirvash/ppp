@@ -4,6 +4,8 @@
 import sys
 import pdb
 import traceback
+
+from PyQt5.QtCore import QRectF
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, Qt
@@ -22,8 +24,15 @@ class MainWidget(QMainWindow):
         self.ui.pushButtonLeft.clicked.connect(self.move_prev)
         self.ui.pushButtonRight.clicked.connect(self.move_next)
         self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
+        self.ui.graphicsView.clicked.connect(self.viewClicked)
         self.files = []
         self.index = -1
+        self.scene = None
+
+    def resizeEvent(self, event):
+        super(MainWidget, self).resizeEvent(event)
+        if self.scene:
+            self.ui.graphicsView.fitInView(self.item,  QtCore.Qt.KeepAspectRatio)
 
     def dragEnterEvent(self, event):
         mimedata = event.mimeData()
@@ -48,12 +57,14 @@ class MainWidget(QMainWindow):
             for url in mimedata.urls():
                 path = url.toLocalFile()
                 print path
-                self.files.append(path)
+                if path.endswith(".xml"):
+                    self.ui.cascadeFilepath.setText(path)
+                else:
+                    self.files.append(path)
 
             if len(self.files) > 0:
                 self.index = 0
                 self.open_file(self.files[0])
-
         else:
             event.ignore()
 
@@ -67,26 +78,33 @@ class MainWidget(QMainWindow):
 
     def rubberBandSelected(self, rect):
         print "rubber: {0}".format(rect)
-
         if not hasattr(self, 'pixmap'):
             return
 
-        paint = QPainter(self.pixmap)
-        paint.setPen(QColor(255, 0, 0))
+        pen = QPen()
+        pen.setColor(QColor(255, 0, 0))
+        pen.setWidth(4)
 
         # View座標系からScene(= pixmap)の座標系に変換
         p1 = self.ui.graphicsView.mapToScene(rect.topLeft())
         p2 = self.ui.graphicsView.mapToScene(rect.bottomRight())
         rect.setTopLeft(p1.toPoint())
         rect.setBottomRight(p2.toPoint())
-        paint.drawRect(rect)
-        self.update_image()
+        self.scene.addRect(QRectF(rect), pen)
 
+    def viewClicked(self, pos):
+        print "clicked: {0}".format(pos)
+        if not hasattr(self, 'pixmap'):
+            return
+
+        for item in self.scene.items():
+            if not isinstance(item, QGraphicsPixmapItem):
+                self.scene.removeItem(item)
 
     def open_file(self, path):
         if path:
             self.path = path
-            self.ui.lineEdit.setText(path)
+            self.ui.imageFilepath.setText(path)
             self.pixmap = QPixmap(path)
             self.update_image()
 

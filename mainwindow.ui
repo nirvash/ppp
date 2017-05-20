@@ -16,14 +16,20 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLineEdit" name="lineEdit">
+     <widget class="QLineEdit" name="cascadeFilepath">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="dragEnabled">
+       <bool>false</bool>
+      </property>
      </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="imageFilepath"/>
     </item>
     <item>
      <widget class="RubberBandGraphicsView" name="graphicsView">
@@ -32,6 +38,9 @@
       </property>
       <property name="acceptDrops">
        <bool>false</bool>
+      </property>
+      <property name="renderHints">
+       <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
       </property>
       <property name="dragMode">
        <enum>QGraphicsView::RubberBandDrag</enum>
@@ -46,6 +55,22 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>75</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
@@ -115,7 +140,7 @@
      <x>0</x>
      <y>0</y>
      <width>867</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
