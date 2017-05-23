@@ -10,6 +10,24 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+    <horstretch>20</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>20</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>20</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>ppp</string>
   </property>
@@ -30,6 +48,19 @@
     </item>
     <item>
      <widget class="QLineEdit" name="imageFilepath"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_scale"/>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_neighbor"/>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="RubberBandGraphicsView" name="graphicsView">

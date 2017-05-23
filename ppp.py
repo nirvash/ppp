@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import os
 import sys
 import pdb
 import traceback
@@ -27,6 +27,8 @@ class MainWidget(QMainWindow):
         self.ui.pushButtonRight.clicked.connect(self.move_next)
         self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
         self.ui.graphicsView.clicked.connect(self.viewClicked)
+        self.ui.lineEdit_scale.setText("1.1")
+        self.ui.lineEdit_neighbor.setText("2")
         self.files = []
         self.index = -1
         self.scene = None
@@ -55,14 +57,21 @@ class MainWidget(QMainWindow):
         mimedata = event.mimeData()
         if mimedata.hasUrls():
             event.accept()
-            self.index = -1
-            self.files = []
             for url in mimedata.urls():
                 path = url.toLocalFile()
                 print path
                 if path.endswith(".xml"):
                     self.ui.cascadeFilepath.setText(path)
                     self.xml = path
+                    return
+
+            self.index = -1
+            self.files = []
+            for url in mimedata.urls():
+                path = url.toLocalFile()
+                print path
+                if os.path.isdir(path):
+                    self.append_files(path)
                 else:
                     self.files.append(path)
 
@@ -71,6 +80,16 @@ class MainWidget(QMainWindow):
                 self.open_file(self.files[0])
         else:
             event.ignore()
+
+
+    def append_files(self, path):
+        if not path.endswith("/"):
+            path += "/"
+        files = os.listdir(path)
+        for file in files:
+            if file.endswith(".png") or file.endswith(".jpg"):
+                self.files.append(path + file)
+
 
     def closeEvent(self, event):
         self.cleanup()
@@ -114,9 +133,11 @@ class MainWidget(QMainWindow):
 
     def load_image(self):
         if hasattr(self, 'path'):
+            scale = float(self.ui.lineEdit_scale.text())
+            neighbor = int(self.ui.lineEdit_neighbor.text())
             detector = FaceDetector()
             img = detector.open(self.path)
-            img = detector.detect(img, self.xml)
+            img = detector.detect(img, self.xml, scale, neighbor)
             height, width, dim = img.shape
             bytesPerLine = dim * width
             image = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
