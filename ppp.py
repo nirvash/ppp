@@ -166,6 +166,7 @@ class MainWidget(QMainWindow):
                 rect = item.boundingRect()
                 rects.append(rect.toRect())
 
+        rects = sorted(rects, key=lambda rect:(rect.x() + rect.y(), rect.x()))
         self.crop(rects, self.model.getOutputPathForPositive())
 
     def crop(self, rects, path):
