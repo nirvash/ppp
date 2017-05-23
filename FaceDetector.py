@@ -20,16 +20,22 @@ class FaceDetector:
             cascade = cv2.CascadeClassifier(xml)
             gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
             gray = cv2.equalizeHist(gray)
-            facerect = cascade.detectMultiScale(gray, scaleFactor=scale, minNeighbors=neighbor, minSize=(24, 24))
+            (faces, neighbors, weights) = cascade.detectMultiScale3(gray, scaleFactor=scale, minNeighbors=neighbor, minSize=(24, 24), outputRejectLevels=True)
             color = (255, 0, 0) #RGB
+            CV_AA = 16
 
-            if len(facerect) > 500:
-                print "too many face detected {0}".format(len(facerect))
+            if len(faces) > 500:
+                print "too many face detected {0}".format(len(faces))
             else:
-                for rect in facerect:
+                for i, rect in enumerate(faces):
                     cv2.rectangle(img, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), color, thickness=4)
+                    pos = (rect[0], rect[1] - 5)
+                    text = "({0} * {1:04.2f})".format(neighbors[i, 0], weights[i, 0])
+                    if i < 5:
+                        print text
+                    cv2.putText(img, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 2, CV_AA)
         except:
-            pass
+            traceback.print_exc()
 
         return img
 

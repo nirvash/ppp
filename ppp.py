@@ -247,13 +247,13 @@ class MainWidget(QMainWindow):
         if not self.model.hasNext():
             return
         self.model.next()
-        self.showFile(self.model.getCurrentFile())
+        self.showCurrentFile()
 
     def move_prev(self):
         if not self.model.hasPrev():
             return
         self.model.prev()
-        self.showFile(self.model.getCurrentFile())
+        self.showCurrentFile()
 
 def exception_handler(t, value, tb):
     traceback.print_exception(t, value, tb)

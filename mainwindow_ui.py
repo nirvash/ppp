@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\0025110052\PycharmProjects\ppp\mainwindow.ui'
+# Form implementation generated from reading ui file 'D:\face\ppp\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
 #
