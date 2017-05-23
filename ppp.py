@@ -1,16 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import ConfigParser
 import os
 import sys
 import pdb
 import traceback
 
-from PyQt5.QtCore import QRectF
+from PyQt5.QtCore import QRectF, QRect
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, Qt
 
 from FaceDetector import FaceDetector
+from Model import Model
 from mainwindow_ui import Ui_MainWindow
 
 from opencv_test import opencv_test
@@ -22,17 +24,43 @@ class MainWidget(QMainWindow):
         self.setAcceptDrops(True)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.pushButtonAction.clicked.connect(self.exec_canny)
+        self.ui.pushButtonAction.clicked.connect(self.crop_as_positive)
         self.ui.pushButtonLeft.clicked.connect(self.move_prev)
         self.ui.pushButtonRight.clicked.connect(self.move_next)
         self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
         self.ui.graphicsView.clicked.connect(self.viewClicked)
         self.ui.lineEdit_scale.setText("1.1")
         self.ui.lineEdit_neighbor.setText("2")
-        self.files = []
-        self.index = -1
+        self.model = Model()
         self.scene = None
-        self.xml = None
+        self.loadConfig()
+
+    def loadConfig(self):
+        config = ConfigParser.SafeConfigParser()
+        config.read('./config.ini')
+        section = 'settings'
+        if config.has_section(section):
+            if config.has_option(section, 'cascade_xml'):
+                self.setCascadeXml(config.get(section, 'cascade_xml'))
+            if config.has_option(section, "outputPathForPositive"):
+                path = config.get(section, 'outputPathForPositive')
+                self.model.setOutputPathForPositive(path)
+
+
+    def saveConfig(self):
+        config = ConfigParser.SafeConfigParser()
+        config.read('./config.ini')
+        section = 'settings'
+        if not config.has_section(section):
+            config.add_section(section)
+        path = self.model.getCascadePath()
+        config.set(section, 'cascade_xml', path)
+        with open('./config.ini', 'w') as file:
+            config.write(file)
+
+    def setCascadeXml(self, path):
+        self.model.setCascadePath(path)
+        self.ui.cascadeFilepath.setText(path)
 
     def resizeEvent(self, event):
         super(MainWidget, self).resizeEvent(event)
@@ -61,26 +89,23 @@ class MainWidget(QMainWindow):
                 path = url.toLocalFile()
                 print path
                 if path.endswith(".xml"):
-                    self.ui.cascadeFilepath.setText(path)
-                    self.xml = path
+                    self.setCascadeXml(path)
                     return
 
-            self.index = -1
-            self.files = []
+            self.model.resetFiles()
             for url in mimedata.urls():
                 path = url.toLocalFile()
                 print path
                 if os.path.isdir(path):
                     self.append_files(path)
                 else:
-                    self.files.append(path)
+                    self.model.append(path)
 
-            if len(self.files) > 0:
-                self.index = 0
-                self.open_file(self.files[0])
+            if self.model.hasFiles():
+                self.model.setCurrentIndex(0)
+                self.showCurrentFile()
         else:
             event.ignore()
-
 
     def append_files(self, path):
         if not path.endswith("/"):
@@ -88,12 +113,12 @@ class MainWidget(QMainWindow):
         files = os.listdir(path)
         for file in files:
             if file.endswith(".png") or file.endswith(".jpg"):
-                self.files.append(path + file)
-
+                self.model.append(path + file)
 
     def closeEvent(self, event):
         self.cleanup()
         event.accept()
+        self.saveConfig()
         super(MainWidget, self).closeEvent(event)
 
     def cleanup(self):
@@ -119,25 +144,53 @@ class MainWidget(QMainWindow):
         print "clicked: {0}".format(pos)
         if not hasattr(self, 'pixmap'):
             return
+        pos = self.ui.graphicsView.mapToScene(pos)
+        self.clearSelection(pos)
 
+    def clearSelection(self, pos):
+        for item in self.scene.items():
+            if not isinstance(item, QGraphicsPixmapItem):
+                if item.contains(pos):
+                    self.scene.removeItem(item)
+                    break
+
+    def clearAllSelection(self):
         for item in self.scene.items():
             if not isinstance(item, QGraphicsPixmapItem):
                 self.scene.removeItem(item)
 
-    def open_file(self, path):
+    def crop_as_positive(self):
+        rects = []
+        for item in self.scene.items():
+            if not isinstance(item, QGraphicsPixmapItem):
+                rect = item.boundingRect()
+                rects.append(rect.toRect())
+
+        self.crop(rects, self.model.getOutputPathForPositive())
+
+    def crop(self, rects, path):
+        if len(rects) == 0:
+            return
+
+        detector = FaceDetector()
+        img = detector.open(self.model.getCurrentFile())
+        basefilename = self.model.getBaseFilename()
+        img = detector.crop(img, rects, basefilename, path)
+
+    def showCurrentFile(self):
+        path = self.model.getCurrentFile()
         if path:
-            self.path = path
             self.ui.imageFilepath.setText(path)
             self.load_image()
             self.update_image()
 
     def load_image(self):
-        if hasattr(self, 'path'):
+        if self.model.hasFiles():
             scale = float(self.ui.lineEdit_scale.text())
             neighbor = int(self.ui.lineEdit_neighbor.text())
             detector = FaceDetector()
-            img = detector.open(self.path)
-            img = detector.detect(img, self.xml, scale, neighbor)
+            img = detector.open(self.model.getCurrentFile())
+            img = detector.detect(img, self.model.getCascadePath(), scale, neighbor)
             height, width, dim = img.shape
             bytesPerLine = dim * width
             image = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
@@ -152,9 +205,9 @@ class MainWidget(QMainWindow):
         self.ui.graphicsView.fitInView(self.item, QtCore.Qt.KeepAspectRatio)
 
     def exec_canny(self):
-        if hasattr(self, 'path'):
+        if self.model.hasFiles():
             cv_test = opencv_test()
-            pic, pic2 = cv_test.open_pic(self.path)
+            pic, pic2 = cv_test.open_pic(self.model.getCurrentFile())
             cv_img = cv_test.canny(pic2)
             height, width, dim = cv_img.shape
             bytesPerLine = dim * width
@@ -163,18 +216,16 @@ class MainWidget(QMainWindow):
             self.scene.addItem(pic_item)
 
     def move_next(self):
-        if self.index == -1:
+        if not self.model.hasNext():
             return
-
-        if self.index < len(self.files) - 1:
-            self.index += 1
-            self.open_file(self.files[self.index])
+        self.model.next()
+        self.showFile(self.model.getCurrentFile())
 
     def move_prev(self):
-        if self.index > 0:
-            self.index -= 1
-            self.open_file(self.files[self.index])
-
+        if not self.model.hasPrev():
+            return
+        self.model.prev()
+        self.showFile(self.model.getCurrentFile())
 
 def exception_handler(t, value, tb):
     traceback.print_exception(t, value, tb)

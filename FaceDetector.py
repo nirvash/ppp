@@ -1,6 +1,7 @@
-import numpy as np
-import cv2
+import traceback
 
+import cv2
+import os
 
 class FaceDetector:
     def __init__(self):
@@ -31,3 +32,21 @@ class FaceDetector:
             pass
 
         return img
+
+    def crop(self, img, rects, basefilename, path):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        try:
+            baseIndex = 0
+            for i, rect in enumerate(rects):
+                output = ''
+                cropped = img[rect.y():rect.y()+rect.height(), rect.x():rect.x()+rect.width()]
+                output = "{0}crop_{1}_{2:0>3d}.jpg".format(path, basefilename, i + baseIndex)
+                while os.path.exists(output):
+                    baseIndex += 1
+                    output = "{0}crop_{1}_{2:0>3d}.jpg".format(path, basefilename, i + baseIndex)
+
+                cv2.imwrite(output, cropped)
+                print output
+        except:
+            traceback.print_exc()
