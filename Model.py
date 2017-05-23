@@ -8,6 +8,7 @@ class Model:
         self.index = -1
         self.xml = None
         self.outputPathForPositive = './'
+        self.outputPathForNegative = './'
 
     def setCascadePath(self, path):
         self.xml = path
@@ -20,6 +21,13 @@ class Model:
 
     def setOutputPathForPositive(self, path):
         self.outputPathForPositive = path
+
+    def getOutputPathForNegative(self):
+        return self.outputPathForNegative
+
+    def setOutputPathForNegative(self, path):
+        self.outputPathForNegative = path
+
 
     def resetFiles(self):
         self.index = -1

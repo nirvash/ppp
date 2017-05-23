@@ -24,7 +24,11 @@ class MainWidget(QMainWindow):
         self.setAcceptDrops(True)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.pushButtonAction.clicked.connect(self.crop_as_positive)
+        self.ui.pushButtonCropP.clicked.connect(self.crop_as_positive)
+        self.ui.pushButtonCropN.clicked.connect(self.crop_as_negative)
+        self.ui.pushButtonClear.clicked.connect(self.clearAllSelection)
+        self.ui.pushButtonFaceDetect.clicked.connect(self.face_detect)
+        self.ui.pushButtonShowOriginal.clicked.connect(self.load_image)
         self.ui.pushButtonLeft.clicked.connect(self.move_prev)
         self.ui.pushButtonRight.clicked.connect(self.move_next)
         self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
@@ -42,9 +46,14 @@ class MainWidget(QMainWindow):
         if config.has_section(section):
             if config.has_option(section, 'cascade_xml'):
                 self.setCascadeXml(config.get(section, 'cascade_xml'))
+
             if config.has_option(section, "outputPathForPositive"):
                 path = config.get(section, 'outputPathForPositive')
                 self.model.setOutputPathForPositive(path)
+
+            if config.has_option(section, "outputPathForNegative"):
+                path = config.get(section, 'outputPathForNegative')
+                self.model.setOutputPathForNegative(path)
 
 
     def saveConfig(self):
@@ -160,6 +169,12 @@ class MainWidget(QMainWindow):
                 self.scene.removeItem(item)
 
     def crop_as_positive(self):
+        self.crop_(self.model.getOutputPathForPositive())
+
+    def crop_as_negative(self):
+        self.crop_(self.model.getOutputPathForNegative())
+
+    def crop_(self, path):
         rects = []
         for item in self.scene.items():
             if not isinstance(item, QGraphicsPixmapItem):
@@ -167,7 +182,7 @@ class MainWidget(QMainWindow):
                 rects.append(rect.toRect())
 
         rects = sorted(rects, key=lambda rect:(rect.x() + rect.y(), rect.x()))
-        self.crop(rects, self.model.getOutputPathForPositive())
+        self.crop(rects, path)
 
     def crop(self, rects, path):
         if len(rects) == 0:
@@ -182,10 +197,21 @@ class MainWidget(QMainWindow):
         path = self.model.getCurrentFile()
         if path:
             self.ui.imageFilepath.setText(path)
-            self.load_image()
-            self.update_image()
+            self.face_detect()
 
     def load_image(self):
+        if self.model.hasFiles():
+            scale = float(self.ui.lineEdit_scale.text())
+            neighbor = int(self.ui.lineEdit_neighbor.text())
+            detector = FaceDetector()
+            img = detector.open(self.model.getCurrentFile())
+            height, width, dim = img.shape
+            bytesPerLine = dim * width
+            image = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
+            self.pixmap = QPixmap.fromImage(image)
+            self.update_image()
+
+    def face_detect(self):
         if self.model.hasFiles():
             scale = float(self.ui.lineEdit_scale.text())
             neighbor = int(self.ui.lineEdit_neighbor.text())
@@ -196,6 +222,7 @@ class MainWidget(QMainWindow):
             bytesPerLine = dim * width
             image = QImage(img.data, width, height, bytesPerLine, QImage.Format_RGB888)
             self.pixmap = QPixmap.fromImage(image)
+            self.update_image()
 
     def update_image(self):
         self.item = QGraphicsPixmapItem(self.pixmap)
