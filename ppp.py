@@ -25,6 +25,7 @@ class MainWidget(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.pushButtonCropP.clicked.connect(self.crop_as_positive)
+        self.ui.pushButtonCropPM.clicked.connect(self.crop_as_positive_mirror)
         self.ui.pushButtonCropN.clicked.connect(self.crop_as_negative)
         self.ui.pushButtonClear.clicked.connect(self.clearAllSelection)
         self.ui.pushButtonFaceDetect.clicked.connect(self.face_detect)
@@ -171,10 +172,13 @@ class MainWidget(QMainWindow):
     def crop_as_positive(self):
         self.crop_(self.model.getOutputPathForPositive())
 
+    def crop_as_positive_mirror(self):
+        self.crop_(self.model.getOutputPathForPositive(), True)
+
     def crop_as_negative(self):
         self.crop_(self.model.getOutputPathForNegative())
 
-    def crop_(self, path):
+    def crop_(self, path, mirror = False):
         rects = []
         for item in self.scene.items():
             if not isinstance(item, QGraphicsPixmapItem):
@@ -182,16 +186,16 @@ class MainWidget(QMainWindow):
                 rects.append(rect.toRect())
 
         rects = sorted(rects, key=lambda rect:(rect.x() + rect.y(), rect.x()))
-        self.crop(rects, path)
+        self.crop(rects, path, mirror)
 
-    def crop(self, rects, path):
+    def crop(self, rects, path, mirror):
         if len(rects) == 0:
             return
 
         detector = FaceDetector()
         img = detector.open(self.model.getCurrentFile())
         basefilename = self.model.getBaseFilename()
-        img = detector.crop(img, rects, basefilename, path)
+        img = detector.crop(img, rects, basefilename, path, mirror)
 
     def showCurrentFile(self):
         path = self.model.getCurrentFile()

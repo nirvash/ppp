@@ -130,6 +130,11 @@ class Ui_MainWindow(object):
         self.pushButtonCropN.setSizePolicy(sizePolicy)
         self.pushButtonCropN.setObjectName("pushButtonCropN")
         self.horizontalLayout_3.addWidget(self.pushButtonCropN)
+        spacerItem5 = QtWidgets.QSpacerItem(30, 20, QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem5)
+        self.pushButtonCropPM = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButtonCropPM.setObjectName("pushButtonCropPM")
+        self.horizontalLayout_3.addWidget(self.pushButtonCropPM)
         self.pushButtonCropP = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -141,7 +146,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 867, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 867, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
@@ -161,6 +166,7 @@ class Ui_MainWindow(object):
         self.pushButtonShowOriginal.setText(_translate("MainWindow", "Show Original"))
         self.pushButtonClear.setText(_translate("MainWindow", "Clear"))
         self.pushButtonCropN.setText(_translate("MainWindow", "Crop(N)"))
+        self.pushButtonCropPM.setText(_translate("MainWindow", "Crop(P) Mirror"))
         self.pushButtonCropP.setText(_translate("MainWindow", "Crop(P)"))
 
 from RubberBandGraphicsView import RubberBandGraphicsView

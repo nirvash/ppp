@@ -39,14 +39,18 @@ class FaceDetector:
 
         return img
 
-    def crop(self, img, rects, basefilename, path):
+    def crop(self, img, rects, basefilename, path, mirror = False):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         try:
             baseIndex = 0
             for i, rect in enumerate(rects):
+                if rect.width() < 24 or rect.height() < 24:
+                    continue
                 output = ''
                 cropped = img[rect.y():rect.y()+rect.height(), rect.x():rect.x()+rect.width()]
+                if mirror:
+                    cropped = cv2.flip(cropped, 1) # 1: Y Axis
                 output = "{0}crop_{1}_{2:0>3d}.jpg".format(path, basefilename, i + baseIndex)
                 while os.path.exists(output):
                     baseIndex += 1
