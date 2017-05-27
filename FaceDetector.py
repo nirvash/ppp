@@ -2,6 +2,7 @@ import traceback
 
 import cv2
 import os
+import numpy as np
 
 class FaceDetector:
     def __init__(self):
@@ -18,10 +19,17 @@ class FaceDetector:
 
         try:
             cascade = cv2.CascadeClassifier(xml)
+            height, width = img.shape[:2]
+            #size = (height / 2, width / 2)
+            #gray = cv2.resize(img, size)
             gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
             gray = cv2.equalizeHist(gray)
             (faces, neighbors, weights) = cascade.detectMultiScale3(gray, scaleFactor=scale, minNeighbors=neighbor, minSize=(24, 24), outputRejectLevels=True)
+            gray = cv2.flip(gray, 1)
+            (facesm, neighborsm, weightsm) = cascade.detectMultiScale3(gray, scaleFactor=scale, minNeighbors=neighbor, minSize=(24, 24), outputRejectLevels=True)
+
             color = (0, 200, 0) #RGB
+            colorm = (0, 255, 0)
             # CV_AA = 16
 
             if len(faces) > 500:
@@ -29,11 +37,15 @@ class FaceDetector:
             else:
                 for i, rect in enumerate(faces):
                     cv2.rectangle(img, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), color, thickness=4)
-                    pos = (rect[0], rect[1] - 5)
-                    # text = "({0} * {1:04.2f})".format(neighbors[i, 0], weights[i, 0])
-                    # if i < 5:
-                    #    print text
-                    # cv2.putText(img, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 2, CV_AA)
+
+            if len(facesm) > 500:
+                print "too many face detected {0}".format(len(facesm))
+            else:
+                for i, rectm in enumerate(facesm):
+                    rect = np.array(rectm)
+                    rect[0] = width - rectm[0] - rectm[2]
+                    cv2.rectangle(img, tuple(rect[0:2]),tuple(rect[0:2]+rect[2:4]), colorm, thickness=4)
+
         except:
             traceback.print_exc()
 

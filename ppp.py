@@ -11,6 +11,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, Qt
 
+from DraggableRect import DraggableRect
 from FaceDetector import FaceDetector
 from Model import Model
 from mainwindow_ui import Ui_MainWindow
@@ -148,7 +149,11 @@ class MainWidget(QMainWindow):
         p2 = self.ui.graphicsView.mapToScene(rect.bottomRight())
         rect.setTopLeft(p1.toPoint())
         rect.setBottomRight(p2.toPoint())
-        self.scene.addRect(QRectF(rect), pen)
+
+        rectItem = DraggableRect(QRectF(rect))
+        rectItem.setPen(pen)
+        self.scene.addItem(rectItem)
+        # self.scene.addRect(QRectF(rect), pen)
 
     def viewClicked(self, pos):
         print "clicked: {0}".format(pos)
@@ -160,7 +165,7 @@ class MainWidget(QMainWindow):
     def clearSelection(self, pos):
         for item in self.scene.items():
             if not isinstance(item, QGraphicsPixmapItem):
-                if item.contains(pos):
+                if item.isUnderMouse():
                     self.scene.removeItem(item)
                     break
 

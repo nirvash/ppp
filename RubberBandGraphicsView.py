@@ -12,6 +12,7 @@ class RubberBandGraphicsView(QGraphicsView):
     rubberBandSelected = QtCore.pyqtSignal(QRect)
 
     clicked = QtCore.pyqtSignal(QPoint)
+    prevReleasedPos = QPoint(0, 0)
 
     def __init__(self, parent = None):
         super(QGraphicsView, self).__init__(parent)
@@ -22,15 +23,25 @@ class RubberBandGraphicsView(QGraphicsView):
         self.pressPos = event.pos()
 
     def mouseReleaseEvent(self, event):
+        print "hoge: {0} ".format(event)
         rect = self.rubberBandRect()
 #        QGraphicsView.mouseReleaseEvent(self, event)
         super(RubberBandGraphicsView, self).mouseReleaseEvent(event)
         if not rect.isNull():
             rect = self.normalizeRect(rect, self.pressPos, event.pos())
             self.rubberBandSelected.emit(rect)
+            event.accept()
 
         if event.button() == QtCore.Qt.RightButton:
+            # 右クリックの時だけリリースが2度くるのでワークアラウンド
+            if self.prevReleasedPos == event.pos():
+                self.prevReleasedPos = QPoint(0, 0)
+                event.ignore()
+                return
+
+            self.prevReleasedPos = event.pos()
             self.clicked.emit(event.pos())
+            event.accept()
 
     def normalizeRect(self, rect, pos1, pos2):
         diff = rect.width() - rect.height()
