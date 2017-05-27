@@ -187,7 +187,7 @@ class MainWidget(QMainWindow):
         rects = []
         for item in self.scene.items():
             if not isinstance(item, QGraphicsPixmapItem):
-                rect = item.boundingRect()
+                rect = item.sceneBoundingRect()
                 rects.append(rect.toRect())
 
         rects = sorted(rects, key=lambda rect:(rect.x() + rect.y(), rect.x()))
@@ -206,7 +206,10 @@ class MainWidget(QMainWindow):
         path = self.model.getCurrentFile()
         if path:
             self.ui.imageFilepath.setText(path)
-            self.face_detect()
+            if self.ui.checkBoxFaceDetect.isChecked():
+                self.face_detect()
+            else:
+                self.load_image()
 
     def load_image(self):
         if self.model.hasFiles():
