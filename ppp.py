@@ -12,11 +12,14 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, Qt
 
 from DraggableRect import DraggableRect
+from Effector import Effector
 from FaceDetector import FaceDetector
 from Model import Model
 from mainwindow_ui import Ui_MainWindow
 
 from opencv_test import opencv_test
+
+
 
 
 class MainWidget(QMainWindow):
@@ -35,11 +38,13 @@ class MainWidget(QMainWindow):
         self.ui.pushButtonRight.clicked.connect(self.move_next)
         self.ui.graphicsView.rubberBandSelected.connect(self.rubberBandSelected)
         self.ui.graphicsView.clicked.connect(self.viewClicked)
+        self.ui.pushButtonTest.clicked.connect(self.effect_test)
         self.ui.lineEdit_scale.setText("1.1")
         self.ui.lineEdit_neighbor.setText("2")
         self.model = Model()
         self.scene = None
         self.loadConfig()
+        self.updatePrevNextButton()
 
     def loadConfig(self):
         config = ConfigParser.SafeConfigParser()
@@ -210,6 +215,7 @@ class MainWidget(QMainWindow):
                 self.face_detect()
             else:
                 self.load_image()
+        self.updatePrevNextButton()
 
     def load_image(self):
         if self.model.hasFiles():
@@ -244,16 +250,25 @@ class MainWidget(QMainWindow):
         self.ui.graphicsView.setScene(self.scene)
         self.ui.graphicsView.fitInView(self.item, QtCore.Qt.KeepAspectRatio)
 
+    def effect_test(self):
+        return self.exec_canny()
+        effector = Effector()
+        img = effector.process(self.model.getCurrentFile())
+        height, width = img.shape
+        bytesPerLine = 1 * width
+        image = QImage(img.data, width, height, bytesPerLine, QImage.Format_Grayscale8)
+        self.pixmap = QPixmap.fromImage(image)
+        self.update_image()
+
     def exec_canny(self):
-        if self.model.hasFiles():
-            cv_test = opencv_test()
-            pic, pic2 = cv_test.open_pic(self.model.getCurrentFile())
-            cv_img = cv_test.canny(pic2)
-            height, width, dim = cv_img.shape
-            bytesPerLine = dim * width
-            image = QImage(cv_img.data, width, height, bytesPerLine, QImage.Format_RGB888)
-            pic_item = QGraphicsPixmapItem(QPixmap.fromImage(image))
-            self.scene.addItem(pic_item)
+        cv_test = opencv_test()
+        pic = cv_test.open_pic(self.model.getCurrentFile())
+        cv_img = cv_test.canny(pic)
+        height, width = cv_img.shape
+        bytesPerLine = 1 * width
+        image = QImage(cv_img.data, width, height, bytesPerLine, QImage.Format_Grayscale8)
+        self.pixmap = QPixmap.fromImage(image)
+        self.update_image()
 
     def move_next(self):
         if not self.model.hasNext():
@@ -266,6 +281,11 @@ class MainWidget(QMainWindow):
             return
         self.model.prev()
         self.showCurrentFile()
+
+    def updatePrevNextButton(self):
+        self.ui.pushButtonRight.setEnabled(self.model.hasNext())
+        self.ui.pushButtonLeft.setEnabled(self.model.hasPrev())
+
 
 def exception_handler(t, value, tb):
     traceback.print_exception(t, value, tb)

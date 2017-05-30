@@ -6,15 +6,16 @@ class opencv_test:
         self.file = file
 
     def open_pic(self, file):
-        pic = cv2.imread(file)
-        pic_color = cv2.cvtColor(pic, cv2.COLOR_BGR2RGB)
-        return pic, pic_color
+        img = cv2.imread(file)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return img
 
-    def canny(self, pic):
-        img = cv2.cvtColor(pic, cv2.COLOR_BGR2GRAY)
+    def canny(self, img):
         edges = cv2.Canny(img, 100, 200)
-        edges2 = np.zeros_like(pic)
-        for i in (0, 1, 2):
-            edges2[:,:,i] = edges
-        add = cv2.addWeighted(pic, 1, edges2, 0.4, 0)
-        return add
+        edges = cv2.bitwise_not(edges)
+        #edges2 = np.zeros_like(img)
+        #for i in (0, 1, 2):
+        #    edges2[:,:,i] = edges
+        #add = cv2.addWeighted(pic, 1, edges2, 0.4, 0)
+        #return add
+        return edges

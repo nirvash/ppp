@@ -214,12 +214,18 @@
         <property name="text">
          <string>&lt;</string>
         </property>
+        <property name="shortcut">
+         <string>A</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonRight">
         <property name="text">
          <string>&gt;</string>
+        </property>
+        <property name="shortcut">
+         <string>D</string>
         </property>
        </widget>
       </item>
@@ -247,6 +253,13 @@
        <widget class="QCheckBox" name="checkBoxFaceDetect">
         <property name="text">
          <string>AutoFaceDetect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonTest">
+        <property name="text">
+         <string>Test</string>
         </property>
        </widget>
       </item>
@@ -281,6 +294,9 @@
        <widget class="QPushButton" name="pushButtonClear">
         <property name="text">
          <string>Clear</string>
+        </property>
+        <property name="shortcut">
+         <string>S</string>
         </property>
        </widget>
       </item>
@@ -318,6 +334,9 @@
         <property name="text">
          <string>Crop(P) Mirror</string>
         </property>
+        <property name="shortcut">
+         <string>Q</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -330,6 +349,9 @@
         </property>
         <property name="text">
          <string>Crop(P)</string>
+        </property>
+        <property name="shortcut">
+         <string>E</string>
         </property>
        </widget>
       </item>
